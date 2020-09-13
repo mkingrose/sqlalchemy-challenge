@@ -1,0 +1,87 @@
+import numpy as np
+
+import sqlalchemy
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.orm import Session
+from sqlalchemy import create_engine, func
+
+from flask import Flask, jsonify
+
+
+#################################################
+# Database Setup
+#################################################
+engine = create_engine("sqlite:///titanic.sqlite")
+
+# reflect an existing database into a new model
+Base = automap_base()
+# reflect the tables
+Base.prepare(engine, reflect=True)
+
+# Save reference to the table
+Passenger = Base.classes.passenger 
+
+#################################################
+# Flask Setup
+#################################################
+app = Flask(__name__)
+
+
+#################################################
+# Flask Routes
+#################################################
+
+@app.route("/")
+def welcome():
+    """List all available api routes."""
+    return (
+        f"Available Routes:<br/>"
+        f"/api/v1.0/stations<br/>"
+        f"/api/v1.0/tobs`"
+    )
+
+
+@app.route("/api/v1.0/precipitation`")
+def precipitation():
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    Last_day= engine.execute ("SELECT MAX(date) FROM measurement") 
+
+    date_prcp= engine.execute ("SELECT date, prcp FROM measurement")
+
+    Last_list = list(np.ravel(Last_day))
+
+    return jsonify(Last_day)
+
+    session.close()
+
+@app.route("/api/v1.0/station`")
+def station():
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+    results = session.query(measurement.station).all()
+
+    session.close()
+
+     prcp_list = list(np.ravel(active_stations))
+
+    return jsonify(prcp_list)
+
+    @app.route("/api/v1.0/tobs")
+def tobs():
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    active_stations = engine.execute ("SELECT DISTINCT station FROM station").first() 
+
+    session.close()
+
+    # Convert list of tuples into normal list
+    tobs = list(np.ravel(active_stations))
+
+    return jsonify(tobs)
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
